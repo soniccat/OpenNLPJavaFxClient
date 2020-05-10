@@ -3,8 +3,8 @@ package com.aglushkov.nlphelper
 import com.aglushkov.di.AppComponent
 import com.aglushkov.di.DaggerAppComponent
 import com.aglushkov.nlp.NLPCore
-import com.aglushkov.nlp.Resource
-import com.aglushkov.nlp.isError
+import com.aglushkov.model.Resource
+import com.aglushkov.model.isError
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent

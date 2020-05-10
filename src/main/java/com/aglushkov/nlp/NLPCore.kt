@@ -1,5 +1,6 @@
 package com.aglushkov.nlp
 
+import com.aglushkov.model.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -13,7 +14,6 @@ import opennlp.tools.sentdetect.SentenceModel
 import opennlp.tools.tokenize.TokenizerME
 import opennlp.tools.tokenize.TokenizerModel
 import resources.Resources
-import java.io.FileInputStream
 
 class NLPCore(val scope: CoroutineScope) {
     val state = MutableStateFlow<Resource<NLPCore>>(Resource.Uninitialized())
@@ -21,12 +21,17 @@ class NLPCore(val scope: CoroutineScope) {
     private var sentenceDetector: SentenceDetectorME? = null
     private var tokenizer: TokenizerME? = null
     private var tagger: POSTaggerME? = null
-    private var lemmatizerModel: DictionaryLemmatizer? = null
+    private var lemmatizer: DictionaryLemmatizer? = null
     private var chunker: ChunkerME? = null
 
     init {
         load()
     }
+
+    fun tokenize(sentence: String): Array<out String> = tokenizer?.tokenize(sentence).orEmpty()
+    fun tag(tokens: Array<out String>): Array<out String> = tagger?.tag(tokens).orEmpty()
+    fun lemmatize(tokens: Array<out String>, tags: Array<out String>) = lemmatizer?.lemmatize(tokens, tags).orEmpty()
+    fun chunk(tokens: Array<out String>, tags: Array<out String>) = chunker?.chunk(tokens, tags).orEmpty()
 
     private fun load() {
         state.value = Resource.Loading(this@NLPCore)
@@ -57,7 +62,7 @@ class NLPCore(val scope: CoroutineScope) {
         }
 
         Resources.modelAsStream("en_lemmatizer.dict.bin").use { stream ->
-            lemmatizerModel = DictionaryLemmatizer(stream) }
+            lemmatizer= DictionaryLemmatizer(stream) }
 
         Resources.modelAsStream("en_chunker.bin").use { stream ->
             val chunkerModel = ChunkerModel(stream)
