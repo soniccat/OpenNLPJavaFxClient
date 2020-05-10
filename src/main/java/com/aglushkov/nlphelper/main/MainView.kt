@@ -1,9 +1,11 @@
 package com.aglushkov.nlphelper.main
 
+import com.aglushkov.nlphelper.BaseView
 import com.aglushkov.nlphelper.di.*
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
+import javafx.scene.Scene
 import javafx.scene.control.TextArea
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
@@ -13,7 +15,7 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
-class MainView : Initializable {
+class MainView : BaseView(), Initializable {
     @FXML lateinit var text: TextArea
     @FXML lateinit var tokens: TextArea
     @FXML lateinit var tags: TextArea
@@ -31,11 +33,25 @@ class MainView : Initializable {
         val appOwner = resources!!.getObject(AppOwner.Key)
         DaggerMainViewComponent.factory().create(appOwner as MainViewComponent.Dependencies)
                 .inject(this)
+    }
 
+    override fun onReady() {
+        super.onReady()
+
+        observeVM()
+        subscribeOnViewEvents()
+
+        stage.title = "Hello World"
+        stage.scene = Scene(parent, 600.0, 600.0)
+    }
+
+    private fun subscribeOnViewEvents() {
         text.textProperty().addListener { observable, oldValue, newValue ->
             vm.onTextChanged(newValue)
         }
+    }
 
+    private fun observeVM() {
         mainScope.launch {
             vm.tokens.collect {
                 tokens.text = it

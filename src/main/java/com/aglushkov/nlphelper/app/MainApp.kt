@@ -1,8 +1,10 @@
 package com.aglushkov.nlphelper.app
 
+import com.aglushkov.model.Resource
 import com.aglushkov.nlp.NLPCore
-import com.aglushkov.model.*
-import com.aglushkov.nlphelper.di.*
+import com.aglushkov.nlphelper.di.AppOwner
+import com.aglushkov.nlphelper.di.AppOwnerResourceBundle
+import com.aglushkov.nlphelper.main.MainView
 import com.aglushkov.nlphelper.main.MainViewComponent
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
@@ -11,6 +13,8 @@ import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
 import javafx.stage.Stage
+import javafx.stage.WindowEvent
+import javafx.stage.WindowEvent.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -41,13 +45,6 @@ class MainApp : Application(),
 
     @Throws(Exception::class)
     override fun start(primaryStage: Stage) {
-//        primaryStage.apply {
-//            val oldDispatcher = eventDispatcher
-//            setEventDispatcher { event, tail ->
-//                oldDispatcher.dispatchEvent(event, tail)
-//            }
-//        }
-
         appComponent = DaggerAppComponent.builder().build()
         appComponent.inject(this)
 
@@ -59,11 +56,14 @@ class MainApp : Application(),
             }
         }
 
-        val root = FXMLLoader.load<Parent>(Resources.layout("main.fxml"),
+        val loader = FXMLLoader(Resources.layout("main.fxml"),
                 AppOwnerResourceBundle(this))
-        primaryStage.title = "Hello World"
-        primaryStage.scene = Scene(root, 600.0, 600.0)
-        primaryStage.show()
+        val root = loader.load<Parent>()
+        val view: MainView = loader.getController<MainView>()
+
+        view.stage = primaryStage
+        view.parent = root
+        view.show()
     }
 
     private fun showError(title: String, error: Resource.Error<*>) {
