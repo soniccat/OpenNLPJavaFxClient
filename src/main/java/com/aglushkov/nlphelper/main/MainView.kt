@@ -8,6 +8,7 @@ import javafx.fxml.Initializable
 import javafx.scene.Scene
 import javafx.scene.control.TextArea
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.net.URL
@@ -39,11 +40,21 @@ class MainView : BaseView(), Initializable {
 
         stage.title = "Hello World"
         stage.scene = Scene(parent, 600.0, 600.0)
+
+        // Test data
+        mainScope.launch {
+            delay(1500)
+            text.text = "Many people use the models directly in their Java code by creating SentenceDetector and Tokenizer objects and calling their methods as appropriate."
+        }
     }
 
     private fun subscribeOnViewEvents() {
         text.textProperty().addListener { observable, oldValue, newValue ->
             vm.onTextChanged(newValue)
+        }
+
+        chunks.setOnMouseMoved {
+            
         }
     }
 
