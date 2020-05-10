@@ -27,7 +27,7 @@ sourceSets {
     }
 }
 
-mainClassName = "com.aglushkov.nlphelper.MainApp"
+mainClassName = "com.aglushkov.nlphelper.app.MainApp"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"

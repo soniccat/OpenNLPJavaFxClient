@@ -1,4 +1,4 @@
-package com.aglushkov.nlphelper.di
+package com.aglushkov.nlphelper.app
 
 import com.aglushkov.di.AppComp
 import com.aglushkov.nlp.NLPCore

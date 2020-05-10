@@ -1,8 +1,9 @@
-package com.aglushkov.nlphelper
+package com.aglushkov.nlphelper.app
 
 import com.aglushkov.nlp.NLPCore
 import com.aglushkov.model.*
 import com.aglushkov.nlphelper.di.*
+import com.aglushkov.nlphelper.main.MainViewComponent
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent

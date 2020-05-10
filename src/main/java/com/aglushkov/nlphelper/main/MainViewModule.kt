@@ -1,6 +1,8 @@
-package com.aglushkov.nlphelper.di
+package com.aglushkov.nlphelper.main
 
 import com.aglushkov.di.ViewComp
+import com.aglushkov.nlphelper.main.MainViewModel
+import com.aglushkov.nlphelper.main.MainViewModelImp
 import dagger.Binds
 import dagger.Module
 

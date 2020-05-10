@@ -1,8 +1,7 @@
-package com.aglushkov.nlphelper.di
+package com.aglushkov.nlphelper.main
 
 import com.aglushkov.di.ViewComp
 import com.aglushkov.nlp.NLPCore
-import com.aglushkov.nlphelper.MainView
 import dagger.Component
 
 @ViewComp

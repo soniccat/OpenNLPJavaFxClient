@@ -1,4 +1,4 @@
-package com.aglushkov.nlphelper.di
+package com.aglushkov.nlphelper.main
 
 import com.aglushkov.model.Resource
 import com.aglushkov.nlp.NLPCore

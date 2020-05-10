@@ -1,4 +1,4 @@
-package com.aglushkov.nlphelper
+package com.aglushkov.nlphelper.main
 
 import com.aglushkov.nlphelper.di.*
 import javafx.event.ActionEvent
