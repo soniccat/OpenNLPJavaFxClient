@@ -1,10 +1,8 @@
 package com.aglushkov.nlphelper
 
-import com.aglushkov.di.AppComponent
-import com.aglushkov.di.DaggerAppComponent
 import com.aglushkov.nlp.NLPCore
-import com.aglushkov.model.Resource
-import com.aglushkov.model.isError
+import com.aglushkov.model.*
+import com.aglushkov.nlphelper.di.*
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
@@ -19,7 +17,9 @@ import resources.Resources
 import javax.inject.Inject
 import javax.inject.Named
 
-class MainApp : Application() {
+class MainApp : Application(),
+        AppOwner,
+        MainViewComponent.Dependencies {
     private lateinit var appComponent: AppComponent
 
     @Inject
@@ -28,6 +28,10 @@ class MainApp : Application() {
 
     @Inject
     lateinit var core: NLPCore
+
+    override fun nlpCore(): NLPCore {
+        return core
+    }
 
     @Throws(Exception::class)
     override fun start(primaryStage: Stage) {
@@ -43,15 +47,16 @@ class MainApp : Application() {
 
         mainScope.launch {
             core.state.first {
-                it.isError()
+                it is Resource.Error
             }.run {
                 showError("Model Loading", this as Resource.Error)
             }
         }
 
-        val root = FXMLLoader.load<Parent>(Resources.layout("main.fxml"))
+        val root = FXMLLoader.load<Parent>(Resources.layout("main.fxml"),
+                AppOwnerResourceBundle(this))
         primaryStage.title = "Hello World"
-        primaryStage.scene = Scene(root, 300.0, 300.0)
+        primaryStage.scene = Scene(root, 600.0, 600.0)
         primaryStage.show()
     }
 
@@ -60,6 +65,10 @@ class MainApp : Application() {
         alert.title = title
         alert.contentText = error.throwable.message
         alert.showAndWait()
+    }
+
+    override fun getApplication(): Application {
+        return this
     }
 
     companion object {

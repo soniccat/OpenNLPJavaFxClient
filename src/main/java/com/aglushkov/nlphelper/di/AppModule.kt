@@ -1,5 +1,6 @@
-package com.aglushkov.di
+package com.aglushkov.nlphelper.di
 
+import com.aglushkov.di.AppComp
 import com.aglushkov.nlp.NLPCore
 import dagger.Module
 import dagger.Provides
