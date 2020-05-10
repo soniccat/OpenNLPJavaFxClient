@@ -3,16 +3,12 @@ package com.aglushkov.nlp
 class NLPSentence(val text: String,
                   private val core: NLPCore
 ) {
-    lateinit var tokens: Array<out String>
-    lateinit var tags: Array<out String>
-    lateinit var lemmas: Array<out String>
-    lateinit var chunks: Array<out String>
+    var tokens: Array<out String> = emptyArray()
+    var tags: Array<out String> = emptyArray()
+    var lemmas: Array<out String> = emptyArray()
+    var chunks: Array<out String> = emptyArray()
 
-    init {
-        load()
-    }
-
-    private fun load() {
+    fun load() {
         tokens = core.tokenize(text)
         tags = core.tag(tokens)
         lemmas = core.lemmatize(tokens, tags)

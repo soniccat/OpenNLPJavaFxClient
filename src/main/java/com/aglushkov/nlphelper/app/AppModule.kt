@@ -15,7 +15,7 @@ class AppModule {
     @Provides
     @Named("main")
     fun mainScope(): CoroutineScope {
-        return CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        return CoroutineScope(Dispatchers.Main + SupervisorJob())
     }
 
     @AppComp

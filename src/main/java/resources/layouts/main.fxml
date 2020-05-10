@@ -15,11 +15,16 @@
     <children>
         <VBox spacing="10.0" GridPane.vgrow="ALWAYS">
             <children>
-                <TextArea fx:id="text" VBox.vgrow="ALWAYS" />
-            <TextArea fx:id="tokens" prefHeight="200.0" prefWidth="200.0" />
-            <TextArea fx:id="tags" prefHeight="200.0" prefWidth="200.0" />
-            <TextArea fx:id="chunks" prefHeight="200.0" prefWidth="200.0" />
-                <Button mnemonicParsing="false" onAction="#handleSubmitButtonAction" text="Process" />
+            <Label text="Your Text" />
+                <TextArea fx:id="text" wrapText="true" VBox.vgrow="ALWAYS" />
+            <Label text="Tokens" />
+            <TextArea fx:id="tokens" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+            <Label text="Tags" />
+            <TextArea fx:id="tags" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+            <Label text="Chunks" />
+            <TextArea fx:id="chunks" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+            <Label text="Lemmas" />
+            <TextArea fx:id="lemmas" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
             </children>
         </VBox>
     </children>

@@ -3,6 +3,8 @@ package com.aglushkov.nlphelper.main
 import com.aglushkov.di.ViewComp
 import com.aglushkov.nlp.NLPCore
 import dagger.Component
+import kotlinx.coroutines.CoroutineScope
+import javax.inject.Named
 
 @ViewComp
 @Component(
@@ -17,6 +19,8 @@ interface MainViewComponent {
     }
 
     interface Dependencies {
+        @Named("main")
+        fun mainScope(): CoroutineScope
         fun nlpCore(): NLPCore
     }
 }

@@ -34,6 +34,11 @@ class MainApp : Application(),
         return core
     }
 
+    @Named("main")
+    override fun mainScope(): CoroutineScope {
+        return mainScope
+    }
+
     @Throws(Exception::class)
     override fun start(primaryStage: Stage) {
 //        primaryStage.apply {
