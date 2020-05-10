@@ -19,8 +19,6 @@ interface MainViewComponent {
     }
 
     interface Dependencies {
-        @Named("main")
-        fun mainScope(): CoroutineScope
         fun nlpCore(): NLPCore
     }
 }

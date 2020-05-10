@@ -3,8 +3,15 @@ package com.aglushkov.nlphelper
 import javafx.scene.Parent
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import java.util.concurrent.CancellationException
 
 open class BaseView {
+    val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
     private lateinit var _stage: Stage
     var stage: Stage
         get() = _stage
@@ -26,7 +33,7 @@ open class BaseView {
             val oldDispatcher = eventDispatcher
             setEventDispatcher { event, tail ->
                 if (event is WindowEvent) {
-                    when (event) {
+                    when (event.eventType) {
                         WindowEvent.WINDOW_SHOWING -> onShowing()
                         WindowEvent.WINDOW_SHOWN -> onShown()
                         WindowEvent.WINDOW_CLOSE_REQUEST -> onCloseRequest()
@@ -53,8 +60,6 @@ open class BaseView {
     open fun onReady() {
     }
 
-    fun show() = stage.show()
-
     open fun onShowing() {
     }
 
@@ -62,5 +67,8 @@ open class BaseView {
     }
 
     open fun onCloseRequest() {
+        mainScope.cancel(CancellationException())
     }
+
+    fun show() = stage.show()
 }

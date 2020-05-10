@@ -23,10 +23,6 @@ class MainView : BaseView(), Initializable {
     @FXML lateinit var chunks: TextArea
 
     @Inject
-    @Named("main")
-    lateinit var mainScope: CoroutineScope
-
-    @Inject
     lateinit var vm: MainVM
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
