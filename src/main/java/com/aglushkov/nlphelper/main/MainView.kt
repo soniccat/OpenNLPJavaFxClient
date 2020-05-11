@@ -196,7 +196,7 @@ class MainView : BaseView(), Initializable {
 
         var wordIndex = 0
         var startWordIndex = 0
-        var endWordIndex = textArea.text.length - 1
+        var endWordIndex = textArea.text.length
         textArea.text.forEachIndexed { index, c ->
             if (c == ' ') {
                 ++wordIndex
