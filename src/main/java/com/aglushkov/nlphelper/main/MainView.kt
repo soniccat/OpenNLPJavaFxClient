@@ -1,20 +1,19 @@
 package com.aglushkov.nlphelper.main
 
 import com.aglushkov.nlphelper.BaseView
-import com.aglushkov.nlphelper.di.*
-import javafx.event.ActionEvent
+import com.aglushkov.nlphelper.di.AppOwner
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Scene
 import javafx.scene.control.TextArea
-import kotlinx.coroutines.CoroutineScope
+import javafx.scene.control.skin.TextAreaSkin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.net.URL
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Named
+
 
 class MainView : BaseView(), Initializable {
     @FXML lateinit var text: TextArea
@@ -54,8 +53,97 @@ class MainView : BaseView(), Initializable {
         }
 
         chunks.setOnMouseMoved {
-            
+            val skin = chunks.skin as TextAreaSkin
+            val mouseHit = skin.getIndex(it.x, it.y)
+            selectChunk(mouseHit.charIndex)
         }
+    }
+
+    private fun selectChunk(charIndex: Int) {
+        if (charIndex < 0 || charIndex >= chunks.text.length) {
+            chunks.selectRange(0,0)
+            onChunkSelectionCleared()
+            return
+        }
+
+        var pos = charIndex
+        var ch = chunks.text[pos]
+        while (pos > 0 && ch != 'B' && ch != 'O') {
+            --pos
+            ch = chunks.text[pos]
+        }
+
+        while (pos < chunks.text.length - 1 && chunks.text[pos] == ' ') ++pos
+        val startPos = pos
+
+        pos = charIndex
+        ch = chunks.text[pos]
+        while (pos < chunks.text.length - 1 && ch != 'B' && ch != 'O') {
+            ++pos
+            ch = chunks.text[pos]
+        }
+
+        --pos
+        while (pos > 0 && chunks.text[pos] == ' ') --pos
+        val endPos = pos
+
+        if (startPos < endPos) {
+            chunks.selectRange(startPos, endPos + 1)
+            onChunkSelected(startPos, endPos + 1)
+        } else {
+            chunks.selectRange(0,0)
+            onChunkSelectionCleared()
+        }
+    }
+
+    private fun onChunkSelected(start: Int, end: Int) {
+        val selectedWordCount = chunks.text.subSequence(start, end).count {
+            it == ' '
+        } + 1
+
+        val beforeWordCount = chunks.text.subSequence(0, start).count {
+            it == ' '
+        } + 1
+
+        selectTokens(beforeWordCount, beforeWordCount + selectedWordCount)
+        selectTags(beforeWordCount, beforeWordCount + selectedWordCount)
+        selectLemmas(beforeWordCount, beforeWordCount + selectedWordCount)
+    }
+
+    private fun selectTokens(startToken: Int, endToken: Int) {
+        selectWords(startToken, endToken, tokens)
+    }
+
+    private fun selectTags(startTag: Int, endTag: Int) {
+        selectWords(startTag, endTag, tags)
+    }
+
+    private fun selectLemmas(startLemma: Int, endLemma: Int) {
+        selectWords(startLemma, endLemma, lemmas)
+    }
+
+    private fun selectWords(startWord: Int, endWord: Int, textArea: TextArea) {
+        var wordIndex = 0
+        var startWordIndex = 0
+        var endWordIndex = 0
+        textArea.text.forEachIndexed { index, c ->
+            if (c == ' ') {
+                ++wordIndex
+                if (wordIndex == startWord - 1) {
+                    startWordIndex = index + 1
+                } else if (wordIndex == endWord - 1) {
+                    endWordIndex = index
+                }
+            }
+        }
+
+        textArea.selectRange(startWordIndex, endWordIndex)
+    }
+
+    private fun onChunkSelectionCleared() {
+        selectTokens(0, 0)
+        selectTags(0, 0)
+        selectLemmas(0, 0)
     }
 
     private fun observeVM() {
