@@ -39,12 +39,6 @@ class MainView : BaseView(), Initializable {
 
         stage.title = "Hello World"
         stage.scene = Scene(parent, 600.0, 600.0)
-
-        // Test data
-        mainScope.launch {
-            delay(1500)
-            text.text = "Many people use the models directly in their Java code by creating SentenceDetector and Tokenizer objects and calling their methods as appropriate."
-        }
     }
 
     private fun subscribeOnViewEvents() {
@@ -55,13 +49,13 @@ class MainView : BaseView(), Initializable {
         tokens.setOnMouseMoved {
             val skin = tokens.skin as TextAreaSkin
             val mouseHit = skin.getIndex(it.x, it.y)
-            selectToken(mouseHit.charIndex)
+            selectWord(mouseHit.charIndex, tokens)
         }
 
         tags.setOnMouseMoved {
             val skin = tags.skin as TextAreaSkin
             val mouseHit = skin.getIndex(it.x, it.y)
-            selectTag(mouseHit.charIndex)
+            selectWord(mouseHit.charIndex, tags)
         }
 
         chunks.setOnMouseMoved {
@@ -69,55 +63,25 @@ class MainView : BaseView(), Initializable {
             val mouseHit = skin.getIndex(it.x, it.y)
             selectChunk(mouseHit.charIndex)
         }
-    }
 
-    private fun selectToken(charIndex: Int) {
-        val number = findWordNumber(charIndex, tokens)
-        if (number == -1) {
-            onTokenSelectionCleared()
-        } else {
-            onTokenSelected(number)
+        lemmas.setOnMouseMoved {
+            val skin = lemmas.skin as TextAreaSkin
+            val mouseHit = skin.getIndex(it.x, it.y)
+            selectWord(mouseHit.charIndex, lemmas)
         }
     }
 
-    private fun onTokenSelected(word: Int) {
-        selectTokens(word, word + 1)
-        selectTags(word, word + 1)
-        selectLemmas(word, word + 1)
-        selectChunks(word, word + 1)
-    }
-
-    private fun onTokenSelectionCleared() {
-        clearSelectedTags()
-        clearSelectedLemmas()
-        clearSelectedChunks()
-    }
-
-    private fun selectTag(charIndex: Int) {
-        val number = findWordNumber(charIndex, tags)
+    private fun selectWord(charIndex: Int, textArea: TextArea) {
+        val number = findWordNumber(charIndex, textArea)
         if (number == -1) {
-            onTagSelectionCleared()
+            clearSelections()
         } else {
-            onTagSelected(number)
+            selectWord(number)
         }
-    }
-
-    private fun onTagSelected(word: Int) {
-        selectTokens(word, word + 1)
-        selectTags(word, word + 1)
-        selectLemmas(word, word + 1)
-        selectChunks(word, word + 1)
-    }
-
-    private fun onTagSelectionCleared() {
-        clearSelectedTokens()
-        clearSelectedLemmas()
-        clearSelectedChunks()
     }
 
     private fun findWordNumber(charIndex: Int, textArea: TextArea): Int {
         if (charIndex < 0 || charIndex >= textArea.text.length) {
-            textArea.selectRange(0,0)
             return -1
         }
 
@@ -138,10 +102,19 @@ class MainView : BaseView(), Initializable {
     }
 
     private fun selectChunk(charIndex: Int) {
-        if (charIndex < 0 || charIndex >= chunks.text.length) {
-            chunks.selectRange(0,0)
-            onChunkSelectionCleared()
+        val range = getChunkRange(charIndex)
+        if (range.isEmpty()) {
+            clearSelections()
             return
+        }
+
+        chunks.selectRange(range.first, range.last + 1)
+        onChunkSelected(range.first, range.last + 1)
+    }
+
+    private fun getChunkRange(charIndex: Int): IntRange {
+        if (charIndex < 0 || charIndex >= chunks.text.length) {
+            return IntRange.EMPTY
         }
 
         var pos = charIndex
@@ -165,13 +138,7 @@ class MainView : BaseView(), Initializable {
         while (pos > 0 && chunks.text[pos] == ' ') --pos
         val endPos = pos
 
-        if (startPos < endPos) {
-            chunks.selectRange(startPos, endPos + 1)
-            onChunkSelected(startPos, endPos + 1)
-        } else {
-            chunks.selectRange(0,0)
-            onChunkSelectionCleared()
-        }
+        return IntRange(startPos, endPos + 1)
     }
 
     private fun onChunkSelected(start: Int, end: Int) {
@@ -183,9 +150,9 @@ class MainView : BaseView(), Initializable {
             it == ' '
         } + 1
 
-        selectTokens(beforeWordCount, beforeWordCount + selectedWordCount)
-        selectTags(beforeWordCount, beforeWordCount + selectedWordCount)
-        selectLemmas(beforeWordCount, beforeWordCount + selectedWordCount)
+        selectWords(beforeWordCount, beforeWordCount + selectedWordCount, tokens)
+        selectWords(beforeWordCount, beforeWordCount + selectedWordCount, tags)
+        selectWords(beforeWordCount, beforeWordCount + selectedWordCount, lemmas)
     }
 
     private fun selectWords(startWord: Int, endWord: Int, textArea: TextArea) {
@@ -212,35 +179,19 @@ class MainView : BaseView(), Initializable {
         textArea.selectRange(startWordIndex, endWordIndex)
     }
 
-    private fun onChunkSelectionCleared() {
-        clearSelectedTokens()
-        clearSelectedTags()
-        clearSelectedLemmas()
+    private fun selectWord(word: Int) {
+        selectWords(word, word + 1, tokens)
+        selectWords(word, word + 1, tags)
+        selectWords(word, word + 1, lemmas)
+        selectWords(word, word + 1, chunks)
     }
 
-    private fun selectTokens(startToken: Int, endToken: Int) {
-        selectWords(startToken, endToken, tokens)
+    private fun clearSelections() {
+        chunks.deselect()
+        tokens.deselect()
+        tags.deselect()
+        lemmas.deselect()
     }
-
-    private fun clearSelectedTokens() = tokens.selectRange(0, 0)
-
-    private fun selectTags(startTag: Int, endTag: Int) {
-        selectWords(startTag, endTag, tags)
-    }
-
-    private fun clearSelectedTags() = tags.selectRange(0, 0)
-
-    private fun selectLemmas(startLemma: Int, endLemma: Int) {
-        selectWords(startLemma, endLemma, lemmas)
-    }
-
-    private fun clearSelectedLemmas() = lemmas.selectRange(0, 0)
-
-    private fun selectChunks(startChunk: Int, endChunk: Int) {
-        selectWords(startChunk, endChunk, chunks)
-    }
-
-    private fun clearSelectedChunks() = chunks.selectRange(0, 0)
 
     private fun observeVM() {
         mainScope.launch {
