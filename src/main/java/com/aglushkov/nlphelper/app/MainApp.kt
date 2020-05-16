@@ -1,5 +1,6 @@
 package com.aglushkov.nlphelper.app
 
+import com.aglushkov.db.AppDatabase
 import com.aglushkov.model.Resource
 import com.aglushkov.nlp.NLPCore
 import com.aglushkov.nlphelper.di.AppOwner
@@ -31,12 +32,11 @@ class MainApp : Application(),
     @Named("main")
     lateinit var mainScope: CoroutineScope
 
-    @Inject
-    lateinit var core: NLPCore
+    @Inject lateinit var core: NLPCore
+    @Inject lateinit var database: AppDatabase
 
-    override fun nlpCore(): NLPCore {
-        return core
-    }
+    override fun nlpCore() = core
+    override fun database() = database
 
     @Throws(Exception::class)
     override fun start(primaryStage: Stage) {

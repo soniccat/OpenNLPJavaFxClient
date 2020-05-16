@@ -1,5 +1,7 @@
 package com.aglushkov.nlphelper.main
 
+import com.aglushkov.db.AppDatabase
+import com.aglushkov.db.models.Sentence
 import com.aglushkov.model.Resource
 import com.aglushkov.model.isLoaded
 import com.aglushkov.nlp.NLPCore
@@ -7,6 +9,7 @@ import com.aglushkov.nlp.NLPSentence
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject

@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS Sentence (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  row INTEGER NOT NULL,
+  text TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS Sentences_id ON Sentence(id);
+
+selectAll:
+SELECT *
+FROM Sentence;
+
+insert:
+INSERT INTO Sentence(row, text)
+VALUES (?, ?);
+
+insertSentence:
+INSERT INTO Sentence(row, text)
+VALUES ?;

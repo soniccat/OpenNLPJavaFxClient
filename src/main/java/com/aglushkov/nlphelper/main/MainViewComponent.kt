@@ -1,5 +1,6 @@
 package com.aglushkov.nlphelper.main
 
+import com.aglushkov.db.AppDatabase
 import com.aglushkov.di.ViewComp
 import com.aglushkov.nlp.NLPCore
 import com.aglushkov.nlphelper.app.ViewModule
@@ -19,5 +20,6 @@ interface MainViewComponent {
 
     interface Dependencies {
         fun nlpCore(): NLPCore
+        fun database(): AppDatabase
     }
 }

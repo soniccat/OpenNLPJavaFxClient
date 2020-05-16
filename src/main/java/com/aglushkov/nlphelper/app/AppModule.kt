@@ -1,5 +1,7 @@
 package com.aglushkov.nlphelper.app
 
+import com.aglushkov.db.AppDatabase
+import com.aglushkov.db.SentenceRepository
 import com.aglushkov.di.AppComp
 import com.aglushkov.nlp.NLPCore
 import dagger.Module
@@ -27,7 +29,26 @@ class AppModule {
 
     @AppComp
     @Provides
-    fun nlpCore(@Named("io") scope: CoroutineScope): NLPCore {
+    @Named("default")
+    fun defaultScope(): CoroutineScope {
+        return CoroutineScope(Dispatchers.Default + SupervisorJob())
+    }
+
+    @AppComp
+    @Provides
+    fun nlpCore(@Named("default") scope: CoroutineScope): NLPCore {
         return NLPCore(scope)
+    }
+
+    @AppComp
+    @Provides
+    fun appDatabase(@Named("default") scope: CoroutineScope): AppDatabase {
+        return AppDatabase(scope)
+    }
+
+    @AppComp
+    @Provides
+    fun sentenceStorage(database: AppDatabase, nlpCore: NLPCore): SentenceRepository {
+        return SentenceRepository(database, nlpCore)
     }
 }

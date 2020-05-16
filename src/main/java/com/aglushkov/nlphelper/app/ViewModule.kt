@@ -23,4 +23,11 @@ class ViewModule {
     fun ioScope(): CoroutineScope {
         return CoroutineScope(Dispatchers.IO + SupervisorJob())
     }
+
+    @ViewComp
+    @Provides
+    @Named("default")
+    fun defaultScope(): CoroutineScope {
+        return CoroutineScope(Dispatchers.Default + SupervisorJob())
+    }
 }

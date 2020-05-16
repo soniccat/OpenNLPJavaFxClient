@@ -1,8 +1,10 @@
 package com.aglushkov.nlp
 
 import com.aglushkov.model.Resource
+import com.aglushkov.model.isLoaded
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import opennlp.tools.chunker.ChunkerME
 import opennlp.tools.chunker.ChunkerModel
@@ -15,7 +17,9 @@ import opennlp.tools.tokenize.TokenizerME
 import opennlp.tools.tokenize.TokenizerModel
 import resources.Resources
 
-class NLPCore(val scope: CoroutineScope) {
+class NLPCore(
+        private val scope: CoroutineScope
+) {
     val state = MutableStateFlow<Resource<NLPCore>>(Resource.Uninitialized())
 
     private var sentenceDetector: SentenceDetectorME? = null
@@ -28,6 +32,9 @@ class NLPCore(val scope: CoroutineScope) {
         load()
     }
 
+    suspend fun waitUntilInitialized() = state.first { it.isLoaded() }
+
+    fun sentences(text: String): Array<out String> = sentenceDetector?.sentDetect(text).orEmpty()
     fun tokenize(sentence: String): Array<out String> = tokenizer?.tokenize(sentence).orEmpty()
     fun tag(tokens: Array<out String>): Array<out String> = tagger?.tag(tokens).orEmpty()
     fun lemmatize(tokens: Array<out String>, tags: Array<out String>) = lemmatizer?.lemmatize(tokens, tags).orEmpty()
