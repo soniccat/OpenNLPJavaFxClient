@@ -13,15 +13,16 @@ import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
+import javafx.scene.control.MenuBar
+import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
-import javafx.stage.WindowEvent
-import javafx.stage.WindowEvent.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import resources.Resources
 import javax.inject.Inject
 import javax.inject.Named
+
 
 class MainApp : Application(),
         AppOwner,

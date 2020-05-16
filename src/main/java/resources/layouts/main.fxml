@@ -4,31 +4,38 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="402.0" prefWidth="234.0" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aglushkov.nlphelper.main.MainView">
-    <columnConstraints>
-        <ColumnConstraints hgrow="ALWAYS" />
-        <ColumnConstraints />
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints vgrow="ALWAYS" />
-    </rowConstraints>
-    <children>
-        <VBox spacing="10.0" GridPane.vgrow="ALWAYS">
-            <children>
-            <Label text="Your Text" />
-                <TextArea fx:id="text" wrapText="true" VBox.vgrow="ALWAYS" />
-            <Label text="Tokens" />
-            <TextArea fx:id="tokens" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
-            <Label text="Tags" />
-            <TextArea fx:id="tags" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
-            <Label text="Chunks" />
-            <TextArea fx:id="chunks" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
-            <Label text="Lemmas" />
-            <TextArea fx:id="lemmas" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
-            </children>
-        </VBox>
-    </children>
-    <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-    </padding>
-</GridPane>
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="402.0" prefWidth="234.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aglushkov.nlphelper.main.MainView">
+  <center>
+      <VBox spacing="10.0" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+          <children>
+              <Label text="Your Text" />
+              <TextArea fx:id="text" wrapText="true" VBox.vgrow="ALWAYS" />
+              <Label text="Tokens" />
+              <TextArea fx:id="tokens" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+              <Label text="Tags" />
+              <TextArea fx:id="tags" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+              <Label text="Chunks" />
+              <TextArea fx:id="chunks" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+              <Label text="Lemmas" />
+              <TextArea fx:id="lemmas" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+          </children>
+          <GridPane.margin>
+              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+          </GridPane.margin>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+  </center>
+   <top>
+      <MenuBar fx:id="mainMenu" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="View">
+            <items>
+              <MenuItem fx:id="showSentences" mnemonicParsing="false" onAction="#showSentences" text="Sentences" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+</BorderPane>

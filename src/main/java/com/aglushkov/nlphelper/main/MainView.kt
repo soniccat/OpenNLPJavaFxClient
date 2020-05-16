@@ -2,12 +2,16 @@ package com.aglushkov.nlphelper.main
 
 import com.aglushkov.nlphelper.BaseView
 import com.aglushkov.nlphelper.di.AppOwner
+import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Scene
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuBar
+import javafx.scene.control.MenuItem
 import javafx.scene.control.TextArea
 import javafx.scene.control.skin.TextAreaSkin
-import kotlinx.coroutines.delay
+import javafx.scene.layout.BorderPane
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.net.URL
@@ -16,6 +20,9 @@ import javax.inject.Inject
 
 
 class MainView : BaseView(), Initializable {
+    @FXML lateinit var mainMenu: MenuBar
+    @FXML lateinit var showSentences: MenuItem
+
     @FXML lateinit var text: TextArea
     @FXML lateinit var tokens: TextArea
     @FXML lateinit var tags: TextArea
@@ -24,6 +31,11 @@ class MainView : BaseView(), Initializable {
 
     @Inject
     lateinit var vm: MainVM
+
+    @FXML
+    fun showSentences() {
+
+    }
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         val appOwner = resources!!.getObject(AppOwner.Key)
