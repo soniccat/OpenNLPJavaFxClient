@@ -2,12 +2,13 @@ package com.aglushkov.nlphelper.main
 
 import com.aglushkov.di.ViewComp
 import com.aglushkov.nlp.NLPCore
+import com.aglushkov.nlphelper.app.ViewModule
 import dagger.Component
 
 @ViewComp
 @Component(
         dependencies = [MainViewComponent.Dependencies::class],
-        modules = [MainViewModule::class])
+        modules = [MainViewModule::class, ViewModule::class])
 interface MainViewComponent {
     fun inject(app: MainView)
 

@@ -195,6 +195,12 @@ class MainView : BaseView(), Initializable {
 
     private fun observeVM() {
         mainScope.launch {
+            vm.text.collect {
+                text.text = it
+            }
+        }
+
+        mainScope.launch {
             vm.tokens.collect {
                 tokens.text = it
             }

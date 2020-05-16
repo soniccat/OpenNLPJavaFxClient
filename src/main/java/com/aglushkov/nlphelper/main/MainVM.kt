@@ -1,12 +1,16 @@
 package com.aglushkov.nlphelper.main
 
 import com.aglushkov.model.Resource
+import com.aglushkov.model.isLoaded
 import com.aglushkov.nlp.NLPCore
 import com.aglushkov.nlp.NLPSentence
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 interface MainVM {
     val text: MutableStateFlow<String>
@@ -18,7 +22,10 @@ interface MainVM {
     fun onTextChanged(string: String)
 }
 
-class MainVMImp @Inject constructor(private val core: NLPCore): MainVM {
+class MainVMImp @Inject constructor(
+        private val core: NLPCore,
+        private @Named("main") val mainScope: CoroutineScope
+): MainVM {
     private var sentence: NLPSentence? = null
 
     override val text = MutableStateFlow<String>("")
@@ -29,11 +36,10 @@ class MainVMImp @Inject constructor(private val core: NLPCore): MainVM {
 
     init {
         // Test data
-//
-//        mainScope.launch {
-//            delay(1500)
-//            text.text = "Many people use the models directly in their Java code by creating SentenceDetector and Tokenizer objects and calling their methods as appropriate."
-//        }
+        mainScope.launch {
+            core.state.first { it.isLoaded() }
+            text.value = "Many people use the models directly in their Java code by creating SentenceDetector and Tokenizer objects and calling their methods as appropriate."
+        }
     }
 
     override fun onTextChanged(string: String) {

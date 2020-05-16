@@ -4,13 +4,15 @@ import javafx.scene.Parent
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import java.util.concurrent.CancellationException
+import javax.inject.Inject
+import javax.inject.Named
 
 open class BaseView {
-    val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    @Inject
+    @Named("main")
+    lateinit var mainScope: CoroutineScope
 
     private lateinit var _stage: Stage
     var stage: Stage
