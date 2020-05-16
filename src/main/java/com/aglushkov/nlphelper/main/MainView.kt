@@ -1,6 +1,7 @@
 package com.aglushkov.nlphelper.main
 
 import com.aglushkov.nlphelper.BaseView
+import com.aglushkov.nlphelper.app.MainApp
 import com.aglushkov.nlphelper.di.AppOwner
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -12,6 +13,7 @@ import javafx.scene.control.MenuItem
 import javafx.scene.control.TextArea
 import javafx.scene.control.skin.TextAreaSkin
 import javafx.scene.layout.BorderPane
+import javafx.stage.Stage
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.net.URL
@@ -20,6 +22,8 @@ import javax.inject.Inject
 
 
 class MainView : BaseView(), Initializable {
+    lateinit var appOwner: AppOwner
+
     @FXML lateinit var mainMenu: MenuBar
     @FXML lateinit var showSentences: MenuItem
 
@@ -29,16 +33,16 @@ class MainView : BaseView(), Initializable {
     @FXML lateinit var lemmas: TextArea
     @FXML lateinit var chunks: TextArea
 
-    @Inject
-    lateinit var vm: MainVM
+    @Inject lateinit var vm: MainVM
 
     @FXML
     fun showSentences() {
-
+        val stage = Stage()
+        MainApp.openWindow("sentences.fxml", appOwner, stage)
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-        val appOwner = resources!!.getObject(AppOwner.Key)
+        appOwner = resources!!.getObject(AppOwner.Key) as AppOwner
         DaggerMainViewComponent.factory().create(appOwner as MainViewComponent.Dependencies)
                 .inject(this)
     }
@@ -49,7 +53,7 @@ class MainView : BaseView(), Initializable {
         observeVM()
         subscribeOnViewEvents()
 
-        stage.title = "Hello World"
+        stage.title = "Main"
         stage.scene = Scene(parent, 600.0, 600.0)
     }
 

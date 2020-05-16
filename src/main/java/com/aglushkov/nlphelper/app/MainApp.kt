@@ -3,18 +3,16 @@ package com.aglushkov.nlphelper.app
 import com.aglushkov.db.AppDatabase
 import com.aglushkov.model.Resource
 import com.aglushkov.nlp.NLPCore
+import com.aglushkov.nlphelper.BaseView
 import com.aglushkov.nlphelper.di.AppOwner
 import com.aglushkov.nlphelper.di.AppOwnerResourceBundle
-import com.aglushkov.nlphelper.main.MainView
 import com.aglushkov.nlphelper.main.MainViewComponent
+import com.aglushkov.nlphelper.sentences.SentencesViewComponent
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
-import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
-import javafx.scene.control.MenuBar
-import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -26,7 +24,9 @@ import javax.inject.Named
 
 class MainApp : Application(),
         AppOwner,
-        MainViewComponent.Dependencies {
+        MainViewComponent.Dependencies,
+        SentencesViewComponent.Dependencies
+{
     private lateinit var appComponent: AppComponent
 
     @Inject
@@ -52,14 +52,7 @@ class MainApp : Application(),
             }
         }
 
-        val loader = FXMLLoader(Resources.layout("main.fxml"),
-                AppOwnerResourceBundle(this))
-        val root = loader.load<Parent>()
-        val view: MainView = loader.getController<MainView>()
-
-        view.stage = primaryStage
-        view.parent = root
-        view.show()
+        openWindow("main.fxml", this, primaryStage)
     }
 
     private fun showError(title: String, error: Resource.Error<*>) {
@@ -77,6 +70,17 @@ class MainApp : Application(),
         @JvmStatic
         fun main(args: Array<String>) {
             launch(MainApp::class.java, *args)
+        }
+
+        @JvmStatic
+        fun openWindow(name: String, appOwner: AppOwner, stage: Stage) {
+            val loader = FXMLLoader(Resources.layout(name), AppOwnerResourceBundle(appOwner))
+            val root = loader.load<Parent>()
+            val view: BaseView = loader.getController()
+
+            view.stage = stage
+            view.parent = root
+            view.show()
         }
     }
 }
