@@ -4,10 +4,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="402.0" prefWidth="234.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aglushkov.nlphelper.sentences.SentencesView">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="457.0" prefWidth="294.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aglushkov.nlphelper.sentences.SentencesView">
   <center>
       <VBox spacing="10.0">
          <children>
+            <HBox prefHeight="16.0" prefWidth="202.0" spacing="10.0" VBox.vgrow="NEVER">
+               <children>
+                  <TextField fx:id="importNameTextField" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="importButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#importText" text="Import" wrapText="true" />
+               </children>
+            </HBox>
+            <TextArea fx:id="importTextArea" maxHeight="80.0" minHeight="80.0" prefHeight="80.0" VBox.vgrow="ALWAYS" />
             <TextField fx:id="searchField" />
             <ListView fx:id="listView" VBox.vgrow="ALWAYS" />
          </children>

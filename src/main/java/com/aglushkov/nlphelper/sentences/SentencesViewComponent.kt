@@ -1,6 +1,7 @@
 package com.aglushkov.nlphelper.sentences
 
 import com.aglushkov.db.AppDatabase
+import com.aglushkov.db.SentenceRepository
 import com.aglushkov.di.ViewComp
 import com.aglushkov.nlp.NLPCore
 import com.aglushkov.nlphelper.app.ViewModule
@@ -21,5 +22,6 @@ interface SentencesViewComponent {
     interface Dependencies {
         fun nlpCore(): NLPCore
         fun database(): AppDatabase
+        fun sentenceRepository(): SentenceRepository
     }
 }

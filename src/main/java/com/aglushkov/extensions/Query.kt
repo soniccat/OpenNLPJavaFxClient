@@ -79,3 +79,10 @@ fun <T : Any> Flow<Query<T>>.mapToList(
         it.executeAsList()
     }
 }
+
+// --- My masterpieces ---
+
+fun Query<Long>.firstLong() = execute().run {
+    next()
+    getLong(0)
+}

@@ -1,7 +1,9 @@
 package com.aglushkov.db
 
 import com.aglushkov.db.models.Sentence
+import com.aglushkov.db.models.TextGroup
 import com.aglushkov.extensions.asFlow
+import com.aglushkov.extensions.firstLong
 import com.aglushkov.model.Resource
 import com.aglushkov.model.isLoaded
 import com.aglushkov.nlphelper.Database
@@ -14,10 +16,14 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class AppDatabase(
-        private val scope: CoroutineScope
+    private val scope: CoroutineScope
 ) {
     private val driver = JdbcSqliteDriver("jdbc:sqlite:mydb.db")
     private var db = Database(driver)
+
+    val context = scope.coroutineContext
+    val sentences = Sentences()
+    val textGroups = TextGroups()
 
     val state = MutableStateFlow<Resource<AppDatabase>>(Resource.Uninitialized())
 
@@ -43,16 +49,26 @@ class AppDatabase(
         Database.Schema.create(driver)
     }
 
-    fun insert(sentence: Sentence) = db.sentencesQueries.insertSentence(sentence)
+    inner class Sentences {
+        fun insert(sentence: Sentence) = db.sentencesQueries.insertSentence(sentence)
+        fun insertedSentenceId() = db.sentencesQueries.lastInsertedRowId().firstLong()
 
-    fun selectQueryFlow() = db.sentencesQueries.selectAll()
+        fun search(text: String) = db.sentencesQueries.search("%${text}%")
 
-    fun selectFlow() = flow {
-        val query = db.sentencesQueries.selectAll()
-        query.execute().use {
-            while (it.next()) {
-                emit(query.mapper(it))
+        fun selectQueryFlow() = db.sentencesQueries.selectAll()
+
+        fun selectFlow() = flow {
+            val query = db.sentencesQueries.selectAll()
+            query.execute().use {
+                while (it.next()) {
+                    emit(query.mapper(it))
+                }
             }
         }
+    }
+
+    inner class TextGroups {
+        fun insert(textGroup: TextGroup) = db.textGroupQueries.insertTextGroup(textGroup)
+        fun insertedTextGroupId() = db.textGroupQueries.lastInsertedRowId().firstLong()
     }
 }

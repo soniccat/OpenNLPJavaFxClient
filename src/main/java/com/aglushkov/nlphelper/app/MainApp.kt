@@ -1,7 +1,9 @@
 package com.aglushkov.nlphelper.app
 
 import com.aglushkov.db.AppDatabase
+import com.aglushkov.db.SentenceRepository
 import com.aglushkov.model.Resource
+import com.aglushkov.model.isError
 import com.aglushkov.nlp.NLPCore
 import com.aglushkov.nlphelper.BaseView
 import com.aglushkov.nlphelper.di.AppOwner
@@ -33,26 +35,36 @@ class MainApp : Application(),
     @Named("main")
     lateinit var mainScope: CoroutineScope
 
-    @Inject lateinit var core: NLPCore
+    @Inject lateinit var nlpCore: NLPCore
     @Inject lateinit var database: AppDatabase
+    @Inject lateinit var sentenceRepository: SentenceRepository
 
-    override fun nlpCore() = core
+    override fun nlpCore() = nlpCore
     override fun database() = database
+    override fun sentenceRepository() = sentenceRepository
 
     @Throws(Exception::class)
     override fun start(primaryStage: Stage) {
         appComponent = DaggerAppComponent.builder().build()
         appComponent.inject(this)
 
+        observeCriticalErrors()
+
+        openWindow("main.fxml", this, primaryStage)
+    }
+
+    private fun observeCriticalErrors() {
         mainScope.launch {
-            core.state.first {
-                it is Resource.Error
-            }.run {
-                showError("Model Loading", this as Resource.Error)
+            nlpCore.state.first { it.isError() }.run {
+                showError("NLP Core Loading Error", this as Resource.Error)
             }
         }
 
-        openWindow("main.fxml", this, primaryStage)
+        mainScope.launch {
+            database.state.first { it.isError() }.run {
+                showError("Database Loading Error", this as Resource.Error)
+            }
+        }
     }
 
     private fun showError(title: String, error: Resource.Error<*>) {

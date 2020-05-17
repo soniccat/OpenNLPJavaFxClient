@@ -1,19 +1,29 @@
 CREATE TABLE IF NOT EXISTS Sentence (
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  gr INTEGER NOT NULL,
   row INTEGER NOT NULL,
   text TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS Sentences_id ON Sentence(id);
+CREATE INDEX IF NOT EXISTS Sentences_text ON Sentence(text);
 
 selectAll:
 SELECT *
 FROM Sentence;
 
+search:
+SELECT *
+FROM Sentence
+WHERE text LIKE ?;
+
 insert:
-INSERT INTO Sentence(row, text)
-VALUES (?, ?);
+INSERT INTO Sentence(gr, row, text)
+VALUES (?, ?, ?);
 
 insertSentence:
-INSERT INTO Sentence(row, text)
+INSERT INTO Sentence(gr, row, text)
 VALUES ?;
+
+lastInsertedRowId:
+SELECT last_insert_rowid();
