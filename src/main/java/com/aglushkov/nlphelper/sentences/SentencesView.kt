@@ -1,6 +1,5 @@
 package com.aglushkov.nlphelper.sentences
 
-import com.aglushkov.db.models.Sentence
 import com.aglushkov.nlphelper.BaseView
 import com.aglushkov.nlphelper.di.AppOwner
 import javafx.collections.FXCollections
@@ -11,9 +10,10 @@ import javafx.scene.control.Button
 import javafx.scene.control.ListView
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
+import javafx.stage.DirectoryChooser
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.URL
 import java.util.*
 import javax.inject.Inject
@@ -63,6 +63,15 @@ class SentencesView : BaseView(), Initializable {
     }
 
     fun importText() {
-        vm.onImportPressed(importNameTextField.text, importTextArea.text)
+        if (importTextArea.text.isEmpty()) {
+            val chooser = DirectoryChooser().apply {
+                title = "Choose Book folder"
+                initialDirectory = File("/")
+            }
+            val selectedDirectory = chooser.showDialog(stage)
+            vm.onImportDirectory(selectedDirectory)
+        } else {
+            vm.onImportPressed(importNameTextField.text, importTextArea.text)
+        }
     }
 }

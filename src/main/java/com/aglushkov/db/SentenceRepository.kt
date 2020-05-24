@@ -19,7 +19,14 @@ class SentenceRepository(
         } ?: 0
 
         nlpCore.sentences(text).forEachIndexed { index, s ->
-            val withoutNewLine = s.replace('\n', ' ')
+            val withoutNewLine = s.replace(13.toChar(), ' ')
+                    .replace(10.toChar(), ' ')
+                    .replace(9.toChar(), ' ')
+                    .replace(11.toChar(), ' ')
+                    .replace(3.toChar(), ' ')
+                    .replace("``", "\"")
+                    .replace("''", "\"")
+                    .trim()
             database.sentences.insert(Sentence.Impl(0, textGroupId, index.toLong(), withoutNewLine))
         }
     }
