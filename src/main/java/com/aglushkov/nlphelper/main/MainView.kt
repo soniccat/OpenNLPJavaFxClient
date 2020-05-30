@@ -125,7 +125,7 @@ class MainView : BaseView(), Initializable {
         }
 
         chunks.selectRange(range.first, range.last + 1)
-        onChunkSelected(range.first, range.last + 1)
+        onChunkSelected(range.first, range.last)
     }
 
     private fun getChunkRange(charIndex: Int): IntRange {

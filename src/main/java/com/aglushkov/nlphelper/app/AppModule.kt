@@ -4,6 +4,9 @@ import com.aglushkov.db.AppDatabase
 import com.aglushkov.db.SentenceRepository
 import com.aglushkov.di.AppComp
 import com.aglushkov.nlp.NLPCore
+import com.aglushkov.word_relation.WordRelationEngine
+import com.aglushkov.word_relation.WordRelationEngineImpl
+import com.aglushkov.word_relation.WordRelationEngineImpl_Factory
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +41,12 @@ class AppModule {
     @Provides
     fun nlpCore(@Named("default") scope: CoroutineScope): NLPCore {
         return NLPCore(scope)
+    }
+
+    @AppComp
+    @Provides
+    fun wordRelationEngine(nlpCore: NLPCore): WordRelationEngine {
+        return WordRelationEngineImpl(nlpCore)
     }
 
     @AppComp

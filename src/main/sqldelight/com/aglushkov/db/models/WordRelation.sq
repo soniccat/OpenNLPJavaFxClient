@@ -1,0 +1,35 @@
+CREATE TABLE IF NOT EXISTS WordRelation (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  word1 TEXT NOT NULL,
+  word1Tag TEXT NOT NULL,
+  word2 TEXT NOT NULL,
+  word2Tag TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS WordRelation_word1Tag ON WordRelation(word1Tag);
+CREATE INDEX IF NOT EXISTS WordRelation_word2Tag ON WordRelation(word2Tag);
+
+selectAll:
+SELECT *
+FROM WordRelation;
+
+selectWord:
+SELECT *
+FROM WordRelation
+WHERE word1 = ?;
+
+selectNounsAfterVerb:
+SELECT *
+FROM WordRelation
+WHERE word1 = ? AND word1Tag LIKE "VB%" AND word2Tag LIKE "NN%";
+
+insert:
+INSERT INTO WordRelation(word1, word1Tag, word2, word2Tag)
+VALUES (?, ?, ?, ?);
+
+insertWordRelation:
+INSERT INTO WordRelation(word1, word1Tag, word2, word2Tag)
+VALUES ?;
+
+lastInsertedRowId:
+SELECT last_insert_rowid();

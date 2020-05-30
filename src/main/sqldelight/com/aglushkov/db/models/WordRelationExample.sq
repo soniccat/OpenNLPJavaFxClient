@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS WordRelationExample (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  relationId INTEGER NOT NULL,
+  example TEXT NOT NULL
+);
+
+selectAll:
+SELECT *
+FROM WordRelationExample;
+
+insert:
+INSERT INTO WordRelationExample(relationId, example)
+VALUES (?, ?);
+
+insertWordRelationExample:
+INSERT INTO WordRelationExample(relationId, example)
+VALUES ?;
+
+lastInsertedRowId:
+SELECT last_insert_rowid();

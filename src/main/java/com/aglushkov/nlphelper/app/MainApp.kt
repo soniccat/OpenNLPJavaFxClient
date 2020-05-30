@@ -10,6 +10,7 @@ import com.aglushkov.nlphelper.di.AppOwner
 import com.aglushkov.nlphelper.di.AppOwnerResourceBundle
 import com.aglushkov.nlphelper.main.MainViewComponent
 import com.aglushkov.nlphelper.sentences.SentencesViewComponent
+import com.aglushkov.word_relation.WordRelationEngine
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
@@ -38,6 +39,7 @@ class MainApp : Application(),
     @Inject lateinit var nlpCore: NLPCore
     @Inject lateinit var database: AppDatabase
     @Inject lateinit var sentenceRepository: SentenceRepository
+    @Inject lateinit var wordRelationEngine: WordRelationEngine
 
     override fun nlpCore() = nlpCore
     override fun database() = database
@@ -51,6 +53,11 @@ class MainApp : Application(),
         observeCriticalErrors()
 
         openWindow("main.fxml", this, primaryStage)
+
+        mainScope.launch {
+            nlpCore.waitUntilInitialized()
+            wordRelationEngine.findNounAfterVerb("I can drive a car, but Tom can't.")
+        }
     }
 
     private fun observeCriticalErrors() {

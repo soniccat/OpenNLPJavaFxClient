@@ -1,7 +1,8 @@
 package com.aglushkov.nlp
 
-class NLPSentence(val text: String,
-                  private val core: NLPCore
+class NLPSentence(
+    val text: String,
+    private val core: NLPCore
 ) {
     var tokens: Array<out String> = emptyArray()
     var tags: Array<out String> = emptyArray()
@@ -14,6 +15,9 @@ class NLPSentence(val text: String,
         lemmas = core.lemmatize(tokens, tags)
         chunks = core.chunk(tokens, tags)
     }
+
+    fun tagEnums() = core.tagEnums(tags)
+    fun spanList() = core.spanList(tokens, tags, chunks)
 
     override fun toString(): String {
         return java.lang.String.join(" ", *tokens)
