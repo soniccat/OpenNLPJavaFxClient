@@ -1,6 +1,7 @@
 package com.aglushkov.extensions
 
 import com.squareup.sqldelight.Query
+import com.squareup.sqldelight.db.use
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
@@ -85,4 +86,12 @@ fun <T : Any> Flow<Query<T>>.mapToList(
 fun Query<Long>.firstLong() = execute().run {
     next()
     getLong(0)
+}
+
+fun <T : Any> Query<T>.readAsFlow() = flow {
+    execute().use {
+        while (it.next()) {
+            emit(mapper(it))
+        }
+    }
 }

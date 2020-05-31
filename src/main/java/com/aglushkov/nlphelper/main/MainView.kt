@@ -41,6 +41,12 @@ class MainView : BaseView(), Initializable {
         MainApp.openWindow("sentences.fxml", appOwner, stage)
     }
 
+    @FXML
+    fun showRelations() {
+        val stage = Stage()
+        MainApp.openWindow("relations.fxml", appOwner, stage)
+    }
+
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         appOwner = resources!!.getObject(AppOwner.Key) as AppOwner
         DaggerMainViewComponent.factory().create(appOwner as MainViewComponent.Dependencies)

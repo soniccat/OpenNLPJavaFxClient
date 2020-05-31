@@ -5,25 +5,21 @@ import com.aglushkov.nlp.NLPCore
 import com.aglushkov.nlp.NLPSentence
 import javax.inject.Inject
 
-interface WordRelationEngine {
-    fun findNounAfterVerb(sentence: String): List<WordRelation.Impl>
-}
-
-class WordRelationEngineImpl @Inject constructor(
+class WordRelationEngine @Inject constructor(
     val nlpCore: NLPCore
-): WordRelationEngine {
+) {
     /*
     * ""
     **/
-    override fun findNounAfterVerb(sentence: String): List<WordRelation.Impl> {
+    fun findNounAfterVerb(sentence: String, verb: String): List<WordRelation.Impl> {
         val nlpSentence = NLPSentence(sentence, nlpCore).apply {
             load()
         }
 
-        return findNounAfterVerb(nlpSentence)
+        return findNounAfterVerb(nlpSentence, verb)
     }
 
-    fun findNounAfterVerb(sentence: NLPSentence): List<WordRelation.Impl> {
+    fun findNounAfterVerb(sentence: NLPSentence, filterVerb: String): List<WordRelation.Impl> {
         val result = mutableListOf<WordRelation.Impl>()
         val tags = sentence.tagEnums()
         val spanList = sentence.spanList()
@@ -36,12 +32,12 @@ class WordRelationEngineImpl @Inject constructor(
                 var verbTag: NLPCore.Tag = NLPCore.Tag.UNKNOWN
                 for (verbIndex in span.start until span.end) {
                     if (tags[verbIndex].isVerb()) {
-                        verb = sentence.lemmas[verbIndex]
+                        verb = sentence.lemmaOrToken(verbIndex)
                         verbTag = tags[verbIndex]
                     }
                 }
 
-                if (verb != null) {
+                if (verb != null && verb.contains(filterVerb)) {
                     val nounSpan = spanList[i + 1]
                     for (nounIndex in nounSpan.start until nounSpan.end) {
                         if (tags[nounIndex].isNoun()) {
@@ -49,7 +45,7 @@ class WordRelationEngineImpl @Inject constructor(
                                     0,
                                     verb,
                                     verbTag.toString(),
-                                    sentence.lemmas[nounIndex],
+                                    sentence.lemmaOrToken(nounIndex),
                                     tags[nounIndex].toString()
                             )
                             result.add(relation)
@@ -69,4 +65,11 @@ class WordRelationEngineImpl @Inject constructor(
     fun findNounPhrase(startIndex: Int, sentence: NLPSentence): IntRange {
         return IntRange.EMPTY
     }
+
+    // to be able to work with WordRelationEngine in a separate thread
+    fun clone(): WordRelationEngine {
+        return WordRelationEngine(nlpCore.clone())
+    }
+
+    suspend fun waitUntilInitialized() = nlpCore.waitUntilInitialized()
 }

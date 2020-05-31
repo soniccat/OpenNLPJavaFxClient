@@ -13,7 +13,6 @@ import javax.inject.Inject
 import javax.inject.Named
 
 interface SentencesVM {
-    val search: MutableStateFlow<String>
     val sentences: MutableStateFlow<List<Sentence>>
 
     fun onImportDirectory(file: File)
@@ -27,8 +26,6 @@ class SentencesVMImp @Inject constructor(
         private @Named("main") val mainScope: CoroutineScope
 ): SentencesVM {
     private var query: String = ""
-
-    override val search = MutableStateFlow("")
     override val sentences = MutableStateFlow<List<Sentence>>(emptyList())
 
     init {

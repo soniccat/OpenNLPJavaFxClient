@@ -33,6 +33,7 @@
           <Menu mnemonicParsing="false" text="View">
             <items>
               <MenuItem fx:id="showSentences" mnemonicParsing="false" onAction="#showSentences" text="Sentences" />
+              <MenuItem fx:id="showRelations" mnemonicParsing="false" onAction="#showRelations" text="Relations" />
             </items>
           </Menu>
         </menus>

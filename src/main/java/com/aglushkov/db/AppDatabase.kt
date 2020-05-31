@@ -2,7 +2,6 @@ package com.aglushkov.db
 
 import com.aglushkov.db.models.Sentence
 import com.aglushkov.db.models.TextGroup
-import com.aglushkov.extensions.asFlow
 import com.aglushkov.extensions.firstLong
 import com.aglushkov.model.Resource
 import com.aglushkov.model.isLoaded
@@ -14,8 +13,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AppDatabase(
+class AppDatabase @Inject constructor(
     private val scope: CoroutineScope
 ) {
     private val driver = JdbcSqliteDriver("jdbc:sqlite:mydb.db")
@@ -55,16 +55,7 @@ class AppDatabase(
 
         fun search(text: String) = db.sentencesQueries.search("%${text}%")
 
-        fun selectQueryFlow() = db.sentencesQueries.selectAll()
-
-        fun selectFlow() = flow {
-            val query = db.sentencesQueries.selectAll()
-            query.execute().use {
-                while (it.next()) {
-                    emit(query.mapper(it))
-                }
-            }
-        }
+        fun selectAll() = db.sentencesQueries.selectAll()
     }
 
     inner class TextGroups {

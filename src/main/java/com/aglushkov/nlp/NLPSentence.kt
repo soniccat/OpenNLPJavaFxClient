@@ -19,6 +19,12 @@ class NLPSentence(
     fun tagEnums() = core.tagEnums(tags)
     fun spanList() = core.spanList(tokens, tags, chunks)
 
+    fun lemmaOrToken(i: Int) = if (lemmas[i] != NLPCore.UNKNOWN_LEMMA) {
+            lemmas[i]
+        } else {
+            tokens[i]
+        }
+
     override fun toString(): String {
         return java.lang.String.join(" ", *tokens)
     }

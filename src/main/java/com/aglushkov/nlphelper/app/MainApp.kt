@@ -9,6 +9,7 @@ import com.aglushkov.nlphelper.BaseView
 import com.aglushkov.nlphelper.di.AppOwner
 import com.aglushkov.nlphelper.di.AppOwnerResourceBundle
 import com.aglushkov.nlphelper.main.MainViewComponent
+import com.aglushkov.nlphelper.relations.RelationsViewComponent
 import com.aglushkov.nlphelper.sentences.SentencesViewComponent
 import com.aglushkov.word_relation.WordRelationEngine
 import javafx.application.Application
@@ -28,7 +29,8 @@ import javax.inject.Named
 class MainApp : Application(),
         AppOwner,
         MainViewComponent.Dependencies,
-        SentencesViewComponent.Dependencies
+        SentencesViewComponent.Dependencies,
+        RelationsViewComponent.Dependencies
 {
     private lateinit var appComponent: AppComponent
 
@@ -44,6 +46,7 @@ class MainApp : Application(),
     override fun nlpCore() = nlpCore
     override fun database() = database
     override fun sentenceRepository() = sentenceRepository
+    override fun wordRelationEngine() = wordRelationEngine
 
     @Throws(Exception::class)
     override fun start(primaryStage: Stage) {
@@ -56,7 +59,7 @@ class MainApp : Application(),
 
         mainScope.launch {
             nlpCore.waitUntilInitialized()
-            wordRelationEngine.findNounAfterVerb("I can drive a car, but Tom can't.")
+            wordRelationEngine.findNounAfterVerb("I can drive a car, but Tom can't.", "drive")
         }
     }
 

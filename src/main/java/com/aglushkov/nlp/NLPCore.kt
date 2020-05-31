@@ -22,6 +22,10 @@ import resources.Resources
 class NLPCore(
     private val scope: CoroutineScope
 ) {
+    companion object {
+        val UNKNOWN_LEMMA = "O"
+    }
+
     enum class Tag {
         NN,     //	Noun, singular or mass
         NNS,    //	Noun, plural
@@ -103,6 +107,11 @@ class NLPCore(
 
     val state = MutableStateFlow<Resource<NLPCore>>(Resource.Uninitialized())
 
+    private var sentenceModel: SentenceModel? = null
+    private var tokenModel: TokenizerModel? = null
+    private var posModel: POSModel? = null
+    private var chunkerModel: ChunkerModel? = null
+
     private var sentenceDetector: SentenceDetectorME? = null
     private var tokenizer: TokenizerME? = null
     private var tagger: POSTaggerME? = null
@@ -137,6 +146,7 @@ class NLPCore(
         scope.launch {
             try {
                 loadModels()
+                createMEObjects()
                 state.value = Resource.Loaded(this@NLPCore)
             } catch (e: Exception) {
                 state.value = Resource.Error(e, true)
@@ -146,26 +156,44 @@ class NLPCore(
 
     private fun loadModels() {
         Resources.modelAsStream("en_sent.bin").use { modelIn ->
-            val sentenceModel = SentenceModel(modelIn)
-            sentenceDetector = SentenceDetectorME(sentenceModel)
+            sentenceModel = SentenceModel(modelIn)
         }
 
         Resources.modelAsStream("en_token.bin").use { stream ->
-            val tokenModel = TokenizerModel(stream)
-            tokenizer = TokenizerME(tokenModel)
+            tokenModel = TokenizerModel(stream)
         }
 
         Resources.modelAsStream("en_pos_maxent.bin").use { stream ->
-            val model = POSModel(stream)
-            tagger = POSTaggerME(model)
+            posModel = POSModel(stream)
         }
 
         Resources.modelAsStream("en_lemmatizer.dict.bin").use { stream ->
-            lemmatizer= DictionaryLemmatizer(stream) }
+            lemmatizer = DictionaryLemmatizer(stream)
+        }
 
         Resources.modelAsStream("en_chunker.bin").use { stream ->
-            val chunkerModel = ChunkerModel(stream)
-            chunker = ChunkerME(chunkerModel)
+            chunkerModel = ChunkerModel(stream)
+        }
+    }
+
+    private fun createMEObjects() {
+        sentenceDetector = SentenceDetectorME(sentenceModel)
+        tokenizer = TokenizerME(tokenModel)
+        tagger = POSTaggerME(posModel)
+        chunker = ChunkerME(chunkerModel)
+    }
+
+    // to be able to work with NLPCore in a separate thread
+    fun clone(): NLPCore {
+        assert(state.value.isLoaded()) { "Can't copy NLPCore when it isn't loaded" }
+
+        return NLPCore(scope).apply {
+            sentenceDetector = SentenceDetectorME(this@NLPCore.sentenceModel)
+            tokenizer = TokenizerME(this@NLPCore.tokenModel)
+            tagger = POSTaggerME(this@NLPCore.posModel)
+            chunker = ChunkerME(this@NLPCore.chunkerModel)
+            lemmatizer = this@NLPCore.lemmatizer
+            state.value = this@NLPCore.state.value
         }
     }
 }
