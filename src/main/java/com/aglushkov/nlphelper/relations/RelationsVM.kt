@@ -35,7 +35,7 @@ class RelationsVMImp @Inject constructor(
 
     override val relations = MutableStateFlow<List<WordRelation.Impl>>(emptyList())
 
-    private var searchScope: CoroutineScope? = null
+    private var searchScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var job: Job? = null
     private var broadcastChannel: BroadcastChannel<Sentence>? = null
 
@@ -68,28 +68,15 @@ class RelationsVMImp @Inject constructor(
         val worker = relationEngineWorker()
         val word = this.word
 
-        //searchScope?.cancel()
         val currentJob = job
+        job = searchScope.launch {
+            val time = System.currentTimeMillis()
+            currentJob?.cancelAndJoin()
+            println("cancel time " + (System.currentTimeMillis() - time))
 
-        //job?.cancel(CancellationException())
-        broadcastChannel?.cancel(CancellationException())
-        broadcastChannel = null
-        searchScope?.cancel(CancellationException())
-        searchScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-        val scope = searchScope!!
-//        val scope = if (searchScope == null) {
-//            CoroutineScope(Dispatchers.Default + SupervisorJob()).also {
-//                searchScope = it
-//            }
-//        } else {
-//            searchScope!!
-//        }
-
-        job = scope.launch {
-            //currentJob?.cancelAndJoin()
-            val relations: List<WordRelation.Impl> = withContext(scope.coroutineContext) {
+            val relations: List<WordRelation.Impl> = withContext(Dispatchers.Default) {
                 wordRelationEngine.waitUntilInitialized()
-                val channel = sentenceRepository.loadSentences().broadcastIn(scope).also {
+                val channel = sentenceRepository.loadSentences().broadcastIn(searchScope).also {
                     broadcastChannel = it
                 }
                 val sharedFlow = channel.asFlow()
@@ -102,9 +89,6 @@ class RelationsVMImp @Inject constructor(
                         val nounAfterVerbs = mutableListOf<WordRelation.Impl>()
                         val flow = sharedFlow.filter { it.id % availableProcessors == i }
                         flow.collect {
-                            if (!isActive) {
-                                print("omg")
-                            }
                             nounAfterVerbs.addAll(worker(relationEngine, it.text, word))
                         }
                         nounAfterVerbs.toList()
@@ -152,8 +136,6 @@ class RelationsVMImp @Inject constructor(
                 this@RelationsVMImp.relations.value = relations
             }
         }
-
-        //wordRelationEngine.findNounAfterVerb()
     }
 
     private fun relationEngineWorker(): (WordRelationEngine, String, String) -> List<WordRelation.Impl> {
