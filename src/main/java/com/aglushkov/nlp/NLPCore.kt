@@ -119,7 +119,6 @@ class NLPCore(
     private var chunker: ChunkerME? = null
 
     init {
-        load()
     }
 
     suspend fun waitUntilInitialized() = state.first { it.isLoaded() }
@@ -141,7 +140,7 @@ class NLPCore(
                 Span.fromNLPSpan(it)
             }
 
-    private fun load() {
+    fun load() {
         state.value = Resource.Loading(this@NLPCore)
         scope.launch {
             try {

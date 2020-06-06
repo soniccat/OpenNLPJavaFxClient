@@ -53,6 +53,7 @@ class MainApp : Application(),
         appComponent = DaggerAppComponent.builder().build()
         appComponent.inject(this)
 
+        nlpCore.load()
         observeCriticalErrors()
 
         openWindow("main.fxml", this, primaryStage)

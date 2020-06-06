@@ -71,8 +71,9 @@ class RelationsVMImp @Inject constructor(
         //searchScope?.cancel()
         val currentJob = job
 
-        job?.cancel(CancellationException())
+        //job?.cancel(CancellationException())
         broadcastChannel?.cancel(CancellationException())
+        broadcastChannel = null
         searchScope?.cancel(CancellationException())
         searchScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
         val scope = searchScope!!
@@ -134,7 +135,9 @@ class RelationsVMImp @Inject constructor(
 
                     sortedRelations
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    if (e !is CancellationException) {
+                        e.printStackTrace()
+                    }
 
                     channel.cancel(CancellationException())
                     for (d in deferredTasks) {
