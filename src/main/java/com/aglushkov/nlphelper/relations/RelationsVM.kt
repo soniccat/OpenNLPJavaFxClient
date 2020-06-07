@@ -1,8 +1,10 @@
 package com.aglushkov.nlphelper.relations
 
+import com.aglushkov.db.AppDatabase
 import com.aglushkov.db.SentenceRepository
 import com.aglushkov.db.models.Sentence
 import com.aglushkov.db.models.WordRelation
+import com.aglushkov.nlp.NLPSentence
 import com.aglushkov.word_relation.WordRelationEngine
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -36,7 +38,6 @@ class RelationsVMImp @Inject constructor(
     override val relations = MutableStateFlow<List<Pair<WordRelation.Impl, Int>>>(emptyList())
 
     private var job: Job? = null
-    private var broadcastChannel: BroadcastChannel<Sentence>? = null
 
     private var word: String = ""
     private var relationOption: RelationsVM.RelationOption = RelationsVM.RelationOption.VB_N
@@ -75,11 +76,9 @@ class RelationsVMImp @Inject constructor(
 
             val relations: List<Pair<WordRelation.Impl, Int>> = withContext(Dispatchers.Default) {
                 wordRelationEngine.waitUntilInitialized()
-                val channel = sentenceRepository.loadSentences().broadcastIn(defaultScope).also {
-                    broadcastChannel = it
-                }
+                val channel = sentenceRepository.loadSentencesNLP().broadcastIn(defaultScope)
                 val sharedFlow = channel.asFlow()
-                val availableProcessors = Runtime.getRuntime().availableProcessors().toLong()
+                val availableProcessors = Runtime.getRuntime().availableProcessors().toLong() - 1
 
                 val deferredTasks: MutableList<Deferred<List<WordRelation.Impl>>> = mutableListOf()
                 for (i in 0 until availableProcessors) {
@@ -88,7 +87,8 @@ class RelationsVMImp @Inject constructor(
                         val nounAfterVerbs = mutableListOf<WordRelation.Impl>()
                         val flow = sharedFlow.filter { it.id % availableProcessors == i }
                         flow.collect {
-                            nounAfterVerbs.addAll(worker(relationEngine, it.text, word))
+                            val nlpSentence = AppDatabase.createNLPSentence(it, relationEngine.nlpCore)
+                            nounAfterVerbs.addAll(worker(relationEngine, nlpSentence, word))
                         }
                         nounAfterVerbs.toList()
                     }
@@ -137,12 +137,12 @@ class RelationsVMImp @Inject constructor(
         }
     }
 
-    private fun relationEngineWorker(): (WordRelationEngine, String, String) -> List<WordRelation.Impl> {
+    private fun relationEngineWorker(): (WordRelationEngine, NLPSentence, String) -> List<WordRelation.Impl> {
         return when (relationOption) {
-            RelationsVM.RelationOption.VB_N -> { engine: WordRelationEngine, text: String, word: String ->
-                engine.findNounAfterVerb(text, word)
+            RelationsVM.RelationOption.VB_N -> { engine: WordRelationEngine, nlpSentence: NLPSentence, word: String ->
+                engine.findNounAfterVerb(nlpSentence, word)
             }
-            else -> { engine: WordRelationEngine, text: String, word: String ->
+            else -> { engine: WordRelationEngine, nlpSentence: NLPSentence, word: String ->
                 emptyList()
             }
         }

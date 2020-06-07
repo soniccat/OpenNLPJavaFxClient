@@ -89,7 +89,7 @@ class SentencesVMImp @Inject constructor(
     override fun onRemoveAllPressed() {
         mainScope.launch {
             withContext(Dispatchers.Unconfined) {
-                database.sentences.removeAll()
+                sentenceRepository.removeAll()
             }
             load(query)
         }

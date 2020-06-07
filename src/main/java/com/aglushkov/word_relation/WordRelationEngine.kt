@@ -12,10 +12,7 @@ class WordRelationEngine @Inject constructor(
     * ""
     **/
     fun findNounAfterVerb(sentence: String, verb: String): List<WordRelation.Impl> {
-        val nlpSentence = NLPSentence(sentence, nlpCore).apply {
-            load()
-        }
-
+        val nlpSentence = NLPSentence(sentence, nlpCore)
         return findNounAfterVerb(nlpSentence, verb)
     }
 

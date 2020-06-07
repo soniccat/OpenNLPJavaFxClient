@@ -12,6 +12,12 @@ selectAll:
 SELECT *
 FROM Sentence;
 
+selectAllWithNLP:
+SELECT *
+FROM Sentence
+LEFT OUTER JOIN SentenceNLP
+WHERE Sentence.id == SentenceNLP.sentenceId;
+
 search:
 SELECT *
 FROM Sentence

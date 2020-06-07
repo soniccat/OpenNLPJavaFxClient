@@ -47,7 +47,6 @@ class MainVMImp @Inject constructor(
 
     private fun processSentence() {
         sentence?.let {
-            it.load()
             tokens.value = it.tokens.joinToString(" ")
             tags.value = it.tags.joinToString(" ")
             lemmas.value = it.lemmas.joinToString(" ")
