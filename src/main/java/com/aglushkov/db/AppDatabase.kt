@@ -56,10 +56,14 @@ class AppDatabase @Inject constructor(
         fun search(text: String) = db.sentencesQueries.search("%${text}%")
 
         fun selectAll() = db.sentencesQueries.selectAll()
+
+        fun removeAll() = db.sentencesQueries.removeAll()
     }
 
     inner class TextGroups {
         fun insert(textGroup: TextGroup) = db.textGroupQueries.insertTextGroup(textGroup)
         fun insertedTextGroupId() = db.textGroupQueries.lastInsertedRowId().firstLong()
+
+        fun removeAll() = db.textGroupQueries.removeAll()
     }
 }

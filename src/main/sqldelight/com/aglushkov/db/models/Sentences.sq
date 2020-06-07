@@ -27,3 +27,7 @@ VALUES ?;
 
 lastInsertedRowId:
 SELECT last_insert_rowid();
+
+removeAll:
+DELETE
+FROM Sentence;

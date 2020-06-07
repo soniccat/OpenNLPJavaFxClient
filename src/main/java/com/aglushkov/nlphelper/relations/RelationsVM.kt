@@ -18,7 +18,7 @@ interface RelationsVM {
         VB_TEST
     }
 
-    val relations: MutableStateFlow<List<WordRelation.Impl>>
+    val relations: MutableStateFlow<List<Pair<WordRelation.Impl, Int>>>
 
     fun relationOptions(): List<RelationOption>
     fun onOptionSelected(option: RelationOption)
@@ -33,9 +33,8 @@ class RelationsVMImp @Inject constructor(
         private @Named("default") val defaultScope: CoroutineScope
 ): RelationsVM {
 
-    override val relations = MutableStateFlow<List<WordRelation.Impl>>(emptyList())
+    override val relations = MutableStateFlow<List<Pair<WordRelation.Impl, Int>>>(emptyList())
 
-    private var searchScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var job: Job? = null
     private var broadcastChannel: BroadcastChannel<Sentence>? = null
 
@@ -69,14 +68,14 @@ class RelationsVMImp @Inject constructor(
         val word = this.word
 
         val currentJob = job
-        job = searchScope.launch {
-            val time = System.currentTimeMillis()
+        job = defaultScope.launch {
+            //val time = System.currentTimeMillis()
             currentJob?.cancelAndJoin()
-            println("cancel time " + (System.currentTimeMillis() - time))
+            //println("cancel time " + (System.currentTimeMillis() - time))
 
-            val relations: List<WordRelation.Impl> = withContext(Dispatchers.Default) {
+            val relations: List<Pair<WordRelation.Impl, Int>> = withContext(Dispatchers.Default) {
                 wordRelationEngine.waitUntilInitialized()
-                val channel = sentenceRepository.loadSentences().broadcastIn(searchScope).also {
+                val channel = sentenceRepository.loadSentences().broadcastIn(defaultScope).also {
                     broadcastChannel = it
                 }
                 val sharedFlow = channel.asFlow()
@@ -103,7 +102,7 @@ class RelationsVMImp @Inject constructor(
                     }
                     println("count " + relations.size)
 
-                    val sortedRelations = mutableListOf<WordRelation.Impl>()
+                    val sortedRelations = mutableListOf<Pair<WordRelation.Impl, Int>>()
                     val groupedRelations = relations
                             .groupBy { it.word1 }
                     for (relation in groupedRelations) {
@@ -113,7 +112,7 @@ class RelationsVMImp @Inject constructor(
                                 .sortedByDescending { it.second.size }
 
                         for (r in sortedValues) {
-                            sortedRelations.add(r.second.first())
+                            sortedRelations.add(Pair(r.second.first(), r.second.size))
                         }
                     }
 
@@ -128,7 +127,7 @@ class RelationsVMImp @Inject constructor(
                         d.cancel(CancellationException())
                     }
 
-                    emptyList<WordRelation.Impl>()
+                    emptyList<Pair<WordRelation.Impl, Int>>()
                 }
             }
 

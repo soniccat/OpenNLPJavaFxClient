@@ -6,10 +6,7 @@ import javafx.collections.FXCollections
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.ListView
-import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.stage.DirectoryChooser
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -28,6 +25,7 @@ class SentencesView : BaseView(), Initializable {
 
     @FXML lateinit var searchField: TextField
     @FXML lateinit var listView: ListView<String>
+    @FXML lateinit var infoLabel: Label
 
     @Inject lateinit var vm: SentencesVM
 
@@ -45,6 +43,8 @@ class SentencesView : BaseView(), Initializable {
 
         stage.title = "Sentences"
         stage.scene = Scene(parent, 400.0, 600.0)
+
+        vm.onReady()
     }
 
     private fun observeVM() {
@@ -52,6 +52,7 @@ class SentencesView : BaseView(), Initializable {
             vm.sentences.collect {
                 val sentences = FXCollections.observableArrayList(it.map { it.text })
                 listView.items = sentences
+                infoLabel.text = "${sentences.size} sentences"
             }
         }
     }
@@ -66,12 +67,19 @@ class SentencesView : BaseView(), Initializable {
         if (importTextArea.text.isEmpty()) {
             val chooser = DirectoryChooser().apply {
                 title = "Choose Book folder"
-                initialDirectory = File("/")
+                initialDirectory = File(System.getProperty("user.dir"))
             }
             val selectedDirectory = chooser.showDialog(stage)
-            vm.onImportDirectory(selectedDirectory)
+            if (selectedDirectory != null) {
+                vm.onImportDirectory(selectedDirectory)
+            }
         } else {
             vm.onImportPressed(importNameTextField.text, importTextArea.text)
         }
+    }
+
+    @FXML
+    fun removeAll() {
+        vm.onRemoveAllPressed()
     }
 }

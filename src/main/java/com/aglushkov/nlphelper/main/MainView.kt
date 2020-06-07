@@ -134,6 +134,7 @@ class MainView : BaseView(), Initializable {
         onChunkSelected(range.first, range.last)
     }
 
+    // TODO: use spans in VM instead to share selection ranges for all the fields
     private fun getChunkRange(charIndex: Int): IntRange {
         if (charIndex < 0 || charIndex >= chunks.text.length) {
             return IntRange.EMPTY

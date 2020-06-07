@@ -47,7 +47,7 @@ class RelationsView : BaseView(), Initializable {
     private fun observeVM() {
         mainScope.launch {
             vm.relations.collect {
-                val relations = FXCollections.observableArrayList(it.map { "${it.word1} - ${it.word2}" })
+                val relations = FXCollections.observableArrayList(it.map { "${it.first.word1} - ${it.first.word2} (${it.second})" })
                 listView.items = relations
             }
         }

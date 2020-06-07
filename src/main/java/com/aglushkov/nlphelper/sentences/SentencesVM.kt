@@ -4,6 +4,7 @@ import com.aglushkov.db.AppDatabase
 import com.aglushkov.db.SentenceRepository
 import com.aglushkov.db.models.Sentence
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -15,9 +16,11 @@ import javax.inject.Named
 interface SentencesVM {
     val sentences: MutableStateFlow<List<Sentence>>
 
+    fun onReady()
     fun onImportDirectory(file: File)
     fun onImportPressed(name: String, text: String)
     fun onSearchChanged(string: String)
+    fun onRemoveAllPressed()
 }
 
 class SentencesVMImp @Inject constructor(
@@ -30,6 +33,10 @@ class SentencesVMImp @Inject constructor(
 
     init {
         load("")
+    }
+
+    override fun onReady() {
+        load(query)
     }
 
     override fun onImportDirectory(file: File) {
@@ -60,6 +67,7 @@ class SentencesVMImp @Inject constructor(
             withContext(database.context) {
                 sentenceRepository.importText(name, text)
             }
+            load(query)
         }
     }
 
@@ -75,6 +83,15 @@ class SentencesVMImp @Inject constructor(
             }
 
             sentences.value = list
+        }
+    }
+
+    override fun onRemoveAllPressed() {
+        mainScope.launch {
+            withContext(Dispatchers.Unconfined) {
+                database.sentences.removeAll()
+            }
+            load(query)
         }
     }
 }
