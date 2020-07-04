@@ -37,7 +37,9 @@ class NLPCore(
         VBG,    //	Verb, gerund or present participle
         VBN,    //	Verb, past participle
         VBP,    //	Verb, non-3rd person singular present
-        VBZ,     //	Verb, 3rd person singular present
+        VBZ,    //	Verb, 3rd person singular present
+
+        IN,     // Preposition or subordinating conjunction
 
         UNKNOWN
         ;
@@ -51,17 +53,19 @@ class NLPCore(
             VB, VBD, VBG, VBN, VBP, VBZ -> true
             else -> false
         }
+
+        fun isPrep() = when (this) {
+            NN, NNS, NNP, NNPS -> true
+            else -> false
+        }
     }
 
-//    enum class ChunkPart {
-//        BEGIN,
-//        INCLUDE,
-//        UNKNOWN
-//    }
-
     enum class ChunkType {
-        NP,
-        VP,
+        NP,     // Noun Phrase
+        VP,     // Verb phrase
+        PP,     // Prepositional phrase
+        ADJP,   // Adjective phrase
+        ADVP,   // Adverb phrase
         X;
 
         companion object {
@@ -76,6 +80,7 @@ class NLPCore(
 
         fun isNounPhrase() = this == NP
         fun isVerbPhrase() = this == VP
+        fun isPrepositionalPhrase() = this == PP
     }
 
     data class Span(val start: Int, val end: Int, val type: ChunkType) {
@@ -85,25 +90,6 @@ class NLPCore(
             }
         }
     }
-
-//    data class Chunk(val part: ChunkPart, val type: ChunkType) {
-//        companion object {
-//            fun parse(str: String): Chunk? {
-//                val parts = str.split('-')
-//                return if (parts.size == 2) {
-//                    try {
-//                        val part = ChunkPart.valueOf(parts[0])
-//                        val type = ChunkType.valueOf(parts[1])
-//                        Chunk(part, type)
-//                    } catch (e: java.lang.Exception) {
-//                        null
-//                    }
-//                } else {
-//                    null
-//                }
-//            }
-//        }
-//    }
 
     val state = MutableStateFlow<Resource<NLPCore>>(Resource.Uninitialized())
 

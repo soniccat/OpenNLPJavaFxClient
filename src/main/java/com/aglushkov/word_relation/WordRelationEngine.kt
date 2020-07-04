@@ -8,9 +8,6 @@ import javax.inject.Inject
 class WordRelationEngine @Inject constructor(
     val nlpCore: NLPCore
 ) {
-    /*
-    * ""
-    **/
     fun findNounAfterVerb(sentence: String, verb: String): List<WordRelation.Impl> {
         val nlpSentence = NLPSentence(sentence, nlpCore)
         return findNounAfterVerb(nlpSentence, verb)
@@ -59,8 +56,47 @@ class WordRelationEngine @Inject constructor(
         return result
     }
 
-    fun findNounPhrase(startIndex: Int, sentence: NLPSentence): IntRange {
-        return IntRange.EMPTY
+    fun findPrepAfterVerb(sentence: NLPSentence, filterVerb: String): List<WordRelation.Impl> {
+        val result = mutableListOf<WordRelation.Impl>()
+        val tags = sentence.tagEnums()
+        val spanList = sentence.spanList()
+
+        var i = 0
+        while(i < spanList.size) {
+            val span = spanList[i]
+            if (span.type.isVerbPhrase() && i + 1 < spanList.size && spanList[i + 1].type.isPrepositionalPhrase()) {
+                var verb: String? = null
+                var verbTag: NLPCore.Tag = NLPCore.Tag.UNKNOWN
+                for (verbIndex in span.start until span.end) {
+                    if (tags[verbIndex].isVerb()) {
+                        verb = sentence.lemmaOrToken(verbIndex)
+                        verbTag = tags[verbIndex]
+                    }
+                }
+
+                if (verb != null && verb.contains(filterVerb)) {
+                    val prepSpan = spanList[i + 1]
+                    for (prepIndex in prepSpan.start until prepSpan.end) {
+                        if (tags[prepIndex].isPrep()) {
+                            val relation = WordRelation.Impl(
+                                    0,
+                                    verb,
+                                    verbTag.toString(),
+                                    sentence.lemmaOrToken(prepIndex),
+                                    tags[prepIndex].toString()
+                            )
+                            result.add(relation)
+                        }
+                    }
+                }
+
+                ++i
+            }
+
+            ++i
+        }
+
+        return result
     }
 
     // to be able to work with WordRelationEngine in a separate thread

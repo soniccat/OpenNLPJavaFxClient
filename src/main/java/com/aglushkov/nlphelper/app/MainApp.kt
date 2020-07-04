@@ -57,11 +57,6 @@ class MainApp : Application(),
         observeCriticalErrors()
 
         openWindow("main.fxml", this, primaryStage)
-
-        mainScope.launch {
-            nlpCore.waitUntilInitialized()
-            wordRelationEngine.findNounAfterVerb("I can drive a car, but Tom can't.", "drive")
-        }
     }
 
     private fun observeCriticalErrors() {

@@ -17,6 +17,7 @@ import javax.inject.Named
 interface RelationsVM {
     enum class RelationOption {
         VB_N,
+        VB_PREP,
         VB_TEST
     }
 
@@ -42,7 +43,7 @@ class RelationsVMImp @Inject constructor(
     private var word: String = ""
     private var relationOption: RelationsVM.RelationOption = RelationsVM.RelationOption.VB_N
 
-    override fun relationOptions() = listOf(RelationsVM.RelationOption.VB_N, RelationsVM.RelationOption.VB_TEST)
+    override fun relationOptions() = listOf(RelationsVM.RelationOption.VB_N, RelationsVM.RelationOption.VB_PREP, RelationsVM.RelationOption.VB_TEST)
 
     override fun onOptionSelected(option: RelationsVM.RelationOption) {
         relationOption = option
@@ -59,7 +60,7 @@ class RelationsVMImp @Inject constructor(
     }
 
     private fun findRelationsIfNeeded() {
-        if (word.length > 0) {
+        if (word.isNotEmpty()) {
             findRelations()
         }
     }
@@ -141,6 +142,9 @@ class RelationsVMImp @Inject constructor(
         return when (relationOption) {
             RelationsVM.RelationOption.VB_N -> { engine: WordRelationEngine, nlpSentence: NLPSentence, word: String ->
                 engine.findNounAfterVerb(nlpSentence, word)
+            }
+            RelationsVM.RelationOption.VB_PREP -> { engine: WordRelationEngine, nlpSentence: NLPSentence, word: String ->
+                engine.findPrepAfterVerb(nlpSentence, word)
             }
             else -> { engine: WordRelationEngine, nlpSentence: NLPSentence, word: String ->
                 emptyList()
