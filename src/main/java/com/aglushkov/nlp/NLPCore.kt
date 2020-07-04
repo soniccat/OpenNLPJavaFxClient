@@ -55,7 +55,7 @@ class NLPCore(
         }
 
         fun isPrep() = when (this) {
-            NN, NNS, NNP, NNPS -> true
+            IN -> true
             else -> false
         }
     }

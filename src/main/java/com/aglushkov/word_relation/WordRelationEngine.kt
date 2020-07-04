@@ -19,35 +19,47 @@ class WordRelationEngine @Inject constructor(
         val spanList = sentence.spanList()
 
         var i = 0
-        while(i < spanList.size) {
+        while (i < spanList.size) {
             val span = spanList[i]
-            if (span.type.isVerbPhrase() && i + 1 < spanList.size && spanList[i + 1].type.isNounPhrase()) {
-                var verb: String? = null
-                var verbTag: NLPCore.Tag = NLPCore.Tag.UNKNOWN
-                for (verbIndex in span.start until span.end) {
-                    if (tags[verbIndex].isVerb()) {
-                        verb = sentence.lemmaOrToken(verbIndex)
-                        verbTag = tags[verbIndex]
-                    }
+            val verbIndex = IntRange(span.start, span.end - 1).firstOrNull {
+                sentence.lemmaOrToken(it).contains(filterVerb)
+            }
+
+            if (verbIndex == null) { ++i; continue }
+
+            // Ex: Trevor takes care of the rest of the garden
+            if (span.type.isVerbPhrase() && tags[verbIndex].isVerb() &&
+                i + 1 < spanList.size && spanList[i + 1].type.isNounPhrase()) {
+
+                val nounSpan = spanList[i + 1]
+                IntRange(nounSpan.start, nounSpan.end - 1).firstOrNull {
+                    tags[it].isNoun()
+                }?.let { nounIndex ->
+                    val relation = WordRelation.Impl(
+                        0,
+                        sentence.lemmaOrToken(verbIndex),
+                        tags[verbIndex].toString(),
+                        sentence.lemmaOrToken(nounIndex),
+                        tags[nounIndex].toString()
+                    )
+                    result.add(relation)
+                    ++i
                 }
 
-                if (verb != null && verb.contains(filterVerb)) {
-                    val nounSpan = spanList[i + 1]
-                    for (nounIndex in nounSpan.start until nounSpan.end) {
-                        if (tags[nounIndex].isNoun()) {
-                            val relation = WordRelation.Impl(
-                                    0,
-                                    verb,
-                                    verbTag.toString(),
-                                    sentence.lemmaOrToken(nounIndex),
-                                    tags[nounIndex].toString()
-                            )
-                            result.add(relation)
-                        }
-                    }
+            // Ex: Take care to avoid needless misunderstandings
+            } else if (span.type.isNounPhrase()) {
+                IntRange(verbIndex + 1, span.end - 1).firstOrNull {
+                    tags[it].isNoun()
+                }?.let { nounIndex ->
+                    val relation = WordRelation.Impl(
+                        0,
+                        sentence.lemmaOrToken(verbIndex),
+                        tags[verbIndex].toString(),
+                        sentence.lemmaOrToken(nounIndex),
+                        tags[nounIndex].toString()
+                    )
+                    result.add(relation)
                 }
-
-                ++i
             }
 
             ++i
@@ -62,35 +74,43 @@ class WordRelationEngine @Inject constructor(
         val spanList = sentence.spanList()
 
         var i = 0
-        while(i < spanList.size) {
+        while (i < spanList.size) {
             val span = spanList[i]
-            if (span.type.isVerbPhrase() && i + 1 < spanList.size && spanList[i + 1].type.isPrepositionalPhrase()) {
-                var verb: String? = null
-                var verbTag: NLPCore.Tag = NLPCore.Tag.UNKNOWN
-                for (verbIndex in span.start until span.end) {
-                    if (tags[verbIndex].isVerb()) {
-                        verb = sentence.lemmaOrToken(verbIndex)
-                        verbTag = tags[verbIndex]
-                    }
+            val verbIndex = IntRange(span.start, span.end - 1).firstOrNull {
+                sentence.lemmaOrToken(it).contains(filterVerb)
+            }
+
+            if (verbIndex == null) { ++i; continue }
+
+            if (span.type.isVerbPhrase() && tags[verbIndex].isVerb()) {
+                var prepSpan: NLPCore.Span? = null
+
+                // Ex: after being taken into custody by members
+                if (i + 1 < spanList.size && spanList[i + 1].type.isPrepositionalPhrase()) {
+                    prepSpan = spanList[i + 1]
+
+                // Ex: His explorations took him into deserts and marshes
+                } else if (i + 2 < spanList.size && spanList[i + 2].type.isPrepositionalPhrase()) {
+                    prepSpan = spanList[i + 2]
                 }
 
-                if (verb != null && verb.contains(filterVerb)) {
-                    val prepSpan = spanList[i + 1]
-                    for (prepIndex in prepSpan.start until prepSpan.end) {
-                        if (tags[prepIndex].isPrep()) {
-                            val relation = WordRelation.Impl(
-                                    0,
-                                    verb,
-                                    verbTag.toString(),
-                                    sentence.lemmaOrToken(prepIndex),
-                                    tags[prepIndex].toString()
-                            )
-                            result.add(relation)
-                        }
+                if (prepSpan != null) {
+                    IntRange(prepSpan.start, prepSpan.end - 1).firstOrNull {
+                        tags[it].isPrep()
+                    }?.let { nounIndex ->
+                        val relation = WordRelation.Impl(
+                            0,
+                            sentence.lemmaOrToken(verbIndex),
+                            tags[verbIndex].toString(),
+                            sentence.lemmaOrToken(nounIndex),
+                            tags[nounIndex].toString()
+                        )
+                        result.add(relation)
+                        ++i
                     }
-                }
 
-                ++i
+                    ++i
+                }
             }
 
             ++i

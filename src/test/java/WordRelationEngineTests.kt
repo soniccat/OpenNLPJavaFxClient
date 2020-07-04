@@ -62,12 +62,38 @@ class WordRelationEngineTests {
         "care"
     )
 
+    @Test
+    fun test7() = testForPrepAfterVerb(
+        "They all `disappeared' after being taken into custody by members of the Indian Peace Keeping Force",
+        "take",
+        "into"
+    )
+
+    @Test
+    fun test8() = testForPrepAfterVerb(
+        "His explorations took him into deserts and marshes",
+        "take",
+        "into"
+    )
+
     private fun testForNounAfterVerb(str: String, verb: String, noun: String) {
         // Assume
         val nlpSentence = NLPSentence(str, nlpCore)
 
         // Act
         val result = engine.findNounAfterVerb(nlpSentence, verb)
+
+        // Assert
+        assertEquals(1, result.size)
+        assertEquals(noun, result.first().word2)
+    }
+
+    private fun testForPrepAfterVerb(str: String, verb: String, noun: String) {
+        // Assume
+        val nlpSentence = NLPSentence(str, nlpCore)
+
+        // Act
+        val result = engine.findPrepAfterVerb(nlpSentence, verb)
 
         // Assert
         assertEquals(1, result.size)
